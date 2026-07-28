@@ -1,0 +1,151 @@
+<div class="fuel-dashboard">
+
+  <header class="dashboard-header">
+    <div class="header-brand">
+      <div class="brand-icon">D</div>
+      <div>
+        <div class="brand-name">Diesel Dashboard</div>
+        <div class="brand-sub">Live Diesel Records</div>
+      </div>
+    </div>
+    <div class="header-date">{{ today | date:'EEEE, MMMM d, y' }}</div>
+  </header>
+
+  <div class="dashboard-inner">
+
+    <div class="kpi-grid">
+      <div class="kpi-card" *ngFor="let kpi of kpiCards">
+        <div class="kpi-card-bar" [style.background]="kpi.color"></div>
+        <div class="kpi-icon">{{ kpi.icon }}</div>
+        <div class="kpi-value" [style.color]="kpi.color">{{ kpi.value }}</div>
+        <div class="kpi-label">{{ kpi.label }}</div>
+        <div class="kpi-sub">{{ kpi.sub }}</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Monthly Diesel Usage</div>
+            <div class="card-subtitle">Litres recorded over the last 12 months</div>
+          </div>
+          <span class="card-badge">{{ today | date:'yyyy' }}</span>
+        </div>
+        <div class="chart-wrap">
+          <div class="bar-chart">
+            <div class="bar-col" *ngFor="let d of monthlyData; let i = index"
+                 [title]="d.month + ': ' + formatNumber(d.liters) + 'L'">
+              <span class="bar-label-top" [style.color]="isPeak(d.liters) ? '#f59e0b' : '#64748b'">
+                {{ barTopLabel(d.liters) }}
+              </span>
+              <div class="bar-fill"
+                   [class.bar-fill--peak]="isPeak(d.liters)"
+                   [class.bar-fill--default]="!isPeak(d.liters)"
+                   [style.height.px]="barHeight(d.liters)"
+                   [style.transition-delay]="(i * 0.05) + 's'">
+              </div>
+              <span class="bar-month">{{ d.month }}</span>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot legend-dot--default"></div><span class="legend-text">Monthly Diesel Usage</span></div>
+            <div class="legend-item"><div class="legend-dot legend-dot--peak"></div><span class="legend-text">Peak Month</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tank-card">
+        <div class="card-title">Tank Level</div>
+        <div class="card-subtitle">Physical tank capacity</div>
+        <div class="tank-error" *ngIf="tankError">⚠ {{ tankError }}</div>
+        <div class="tank-wrap">
+          <svg width="140" height="220" viewBox="0 0 140 220">
+            <rect x="20" y="10" width="100" height="180" rx="18" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+            <clipPath id="tankClipDiesel"><rect x="22" y="12" width="96" height="176" rx="16"/></clipPath>
+            <g clip-path="url(#tankClipDiesel)">
+              <rect x="22" [attr.y]="svgRectY" width="96" [attr.height]="svgRectH"
+                    [attr.fill]="fuelColor" opacity="0.85"
+                    style="transition: all 1.2s cubic-bezier(0.34,1.56,0.64,1)"/>
+              <path [attr.d]="svgPathD" [attr.fill]="fuelColor" opacity="0.6"
+                    style="transition: all 1.2s cubic-bezier(0.34,1.56,0.64,1)"/>
+            </g>
+            <g *ngFor="let lvl of svgMarkers">
+              <line x1="20" [attr.y1]="markerY(lvl)" x2="34" [attr.y2]="markerY(lvl)" stroke="#475569" stroke-width="1.5"/>
+              <text x="36" [attr.y]="markerY(lvl) + 4" fill="#64748b" font-size="9" font-family="monospace">{{ lvl }}%</text>
+            </g>
+            <rect x="55" y="2"    width="30" height="10" rx="4" fill="#334155"/>
+            <rect x="120" y="130" width="14" height="8"  rx="3" fill="#334155"/>
+          </svg>
+          <div class="tank-readout">
+            <div class="tank-percent" [style.color]="fuelColor">{{ tankFillPercent | number:'1.0-0' }}%</div>
+            <div class="tank-cap-label">{{ formatNumber(tank.current_level) }}L / {{ formatNumber(tank.capacity) }}L</div>
+          </div>
+        </div>
+        <div class="tank-status" [ngClass]="tankStatusClass">{{ tankStatusText }}</div>
+      </div>
+    </div>
+
+    <div class="card log-card">
+      <div class="log-controls-row">
+        <div>
+          <div class="card-title">Diesel Dispensing Log</div>
+          <div class="card-subtitle">Approved diesel records</div>
+        </div>
+        <div class="log-controls">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input class="search-input" type="text"
+                   placeholder="Search driver, vehicle, date or notes..."
+                   [(ngModel)]="search" (ngModelChange)="page=1"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-empty" *ngIf="loading">Loading diesel records...</div>
+      <div class="table-empty" *ngIf="error && !loading">{{ error }}</div>
+
+      <ng-container *ngIf="!loading && !error">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Driver</th><th>Vehicle</th><th>Litres</th><th>Mileage</th><th>Fuel Date</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="filtered.length > 0; else noRows">
+                <tr *ngFor="let row of pagedRows; let i = index">
+                  <td class="td-id">{{ (page - 1) * PAGE_SIZE + i + 1 }}</td>
+                  <td>
+                    <div class="td-user">
+                      <div class="user-avatar" [style.background]="avatarColor(i)">{{ titleCase(row.driver).charAt(0) }}</div>
+                      <span class="user-name">{{ row.driver }}</span>
+                    </div>
+                  </td>
+                  <td class="td-vehicle">{{ row.vehicle }}</td>
+                  <td class="td-liters">{{ formatNumber(row.liters) }}L</td>
+                  <td class="td-date">{{ row.mileage ?? '-' }}</td>
+                  <td class="td-date">{{ formatDate(row.fuelDate) }}</td>
+                  <td class="td-date">{{ row.notes }}</td>
+                </tr>
+              </ng-container>
+              <ng-template #noRows>
+                <tr><td colspan="7" class="table-empty">No diesel records found</td></tr>
+              </ng-template>
+            </tbody>
+          </table>
+        </div>
+        <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+        <div class="table-footer">
+          <span>Showing {{ pagedRows.length }} of {{ filtered.length }} diesel records</span>
+          <span>Total: {{ formatNumber(filteredTotal) }}L across {{ filteredVehicleCount }} vehicles</span>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</div>

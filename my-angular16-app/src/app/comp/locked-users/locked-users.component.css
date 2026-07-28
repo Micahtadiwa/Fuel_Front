@@ -1,0 +1,188 @@
+.lu-page {
+  max-width: 860px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+/* ── Header ── */
+.lu-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.lu-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.lu-title    { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 4px; }
+.lu-subtitle { font-size: 13px; color: #6b7280; margin: 0; }
+
+/* ── Alerts ── */
+.lu-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.lu-alert--success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+.lu-alert--error   { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
+
+/* ── Loading ── */
+.lu-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 60px 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ── Empty state ── */
+.lu-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+}
+.lu-empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+  color: #d1d5db;
+}
+.lu-empty p { font-size: 15px; margin: 0; }
+
+/* ── Table ── */
+.lu-table-wrap {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.lu-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lu-table thead tr {
+  background: #f9fafb;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.lu-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.lu-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.lu-table tbody tr:last-child { border-bottom: none; }
+.lu-table tbody tr:hover { background: #fafafa; }
+
+.lu-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1f2937;
+  vertical-align: middle;
+}
+
+/* ── User cell ── */
+.lu-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.lu-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lu-email { color: #6b7280; font-size: 13px; }
+
+/* ── Badges ── */
+.lu-role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lu-attempts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Unlock button ── */
+.lu-unlock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.lu-unlock-btn:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+.lu-unlock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .lu-page { margin: 16px auto; }
+  .lu-table th, .lu-table td { padding: 10px 10px; font-size: 12px; }
+  .lu-email { display: none; }
+}

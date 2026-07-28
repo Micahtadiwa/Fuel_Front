@@ -1,0 +1,147 @@
+<div class="rh-page">
+
+  <!-- Header -->
+  <div class="rh-header">
+    <div class="rh-header-icon"><i class="fa fa-history"></i></div>
+    <div class="rh-header-text">
+      <h1 class="rh-title">Tank Refill History</h1>
+      <p class="rh-subtitle">All petrol and diesel tank refill transactions.</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="rh-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin rh-state-icon"></i> Loading refill history…
+  </div>
+
+  <!-- Error -->
+  <div class="rh-state rh-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle rh-state-icon"></i> {{ error }}
+    <button class="rh-retry" (click)="fetchRecords()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Stats -->
+    <div class="rh-stats">
+      <div class="rh-stat rh-stat--blue">
+        <i class="fa fa-database rh-stat-icon"></i>
+        <div><div class="rh-stat-val">{{ stats.total }}</div><div class="rh-stat-label">Total Refills</div></div>
+      </div>
+      <div class="rh-stat rh-stat--green">
+        <i class="fa fa-tint rh-stat-icon"></i>
+        <div><div class="rh-stat-val">{{ formatNumber(stats.totalL) }}L</div><div class="rh-stat-label">Total Added</div></div>
+      </div>
+      <div class="rh-stat rh-stat--petrol">
+        <i class="fa fa-flask rh-stat-icon"></i>
+        <div><div class="rh-stat-val">{{ formatNumber(stats.petrolL) }}L</div><div class="rh-stat-label">Petrol Added</div></div>
+      </div>
+      <div class="rh-stat rh-stat--diesel">
+        <i class="fa fa-tint rh-stat-icon"></i>
+        <div><div class="rh-stat-val">{{ formatNumber(stats.dieselL) }}L</div><div class="rh-stat-label">Diesel Added</div></div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="rh-filters">
+      <!-- Fuel type -->
+      <div class="rh-filter-group">
+        <span class="rh-filter-label">Tank</span>
+        <div class="rh-toggle">
+          <button class="rh-toggle-btn" [class.rh-toggle-btn--active]="fuelFilter === 'all'"    (click)="fuelFilter='all';    resetPage()">All</button>
+          <button class="rh-toggle-btn" [class.rh-toggle-btn--petrol]="fuelFilter === 'petrol'" (click)="fuelFilter='petrol'; resetPage()">
+            <span class="rh-dot rh-dot--petrol"></span>Petrol
+          </button>
+          <button class="rh-toggle-btn" [class.rh-toggle-btn--diesel]="fuelFilter === 'diesel'" (click)="fuelFilter='diesel'; resetPage()">
+            <span class="rh-dot rh-dot--diesel"></span>Diesel
+          </button>
+        </div>
+      </div>
+
+      <!-- Date from -->
+      <div class="rh-filter-group">
+        <span class="rh-filter-label">From</span>
+        <input class="rh-input" type="date" [(ngModel)]="dateFrom" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Date to -->
+      <div class="rh-filter-group">
+        <span class="rh-filter-label">To</span>
+        <input class="rh-input" type="date" [(ngModel)]="dateTo" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Search -->
+      <div class="rh-filter-group rh-filter-group--search">
+        <span class="rh-filter-label">Search</span>
+        <div class="rh-search-wrap">
+          <i class="fa fa-search rh-search-icon"></i>
+          <input class="rh-input rh-input--search" type="text" placeholder="Refilled by, reference…"
+                 [(ngModel)]="search" (ngModelChange)="resetPage()" />
+        </div>
+      </div>
+
+      <!-- Clear -->
+      <div class="rh-filter-group" *ngIf="hasFilters">
+        <span class="rh-filter-label">&nbsp;</span>
+        <button class="rh-clear-btn" (click)="clearFilters()"><i class="fa fa-times"></i> Clear</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="rh-card">
+      <div class="rh-card-header">
+        <h2 class="rh-card-title">Refill Transactions</h2>
+        <p class="rh-card-sub">
+          {{ filteredRecords.length }} record{{ filteredRecords.length !== 1 ? 's' : '' }}
+          <span *ngIf="hasFilters"> (filtered from {{ records.length }})</span>
+        </p>
+      </div>
+
+      <div class="rh-table-wrap">
+        <table class="rh-table" *ngIf="filteredRecords.length > 0; else emptyTpl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date &amp; Time</th>
+              <th>Tank</th>
+              <th class="rh-th-num">Liters Added</th>
+              <th class="rh-th-num">Balance After</th>
+              <th>Refilled By</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of pagedRecords; let i = index">
+              <td class="rh-td-idx">{{ (page - 1) * 20 + i + 1 }}</td>
+              <td class="rh-td-date">{{ formatDate(r.createdAt) }}</td>
+              <td>
+                <span class="rh-fuel-pill" [ngClass]="'rh-fuel-pill--' + (r.fuelType || 'unknown')">
+                  {{ r.fuelType === 'petrol' ? '⛽ Petrol' : '🛢️ Diesel' }}
+                </span>
+              </td>
+              <td class="rh-td-num rh-liters">+{{ formatNumber(r.liters) }}L</td>
+              <td class="rh-td-num">{{ formatNumber(r.balanceAfter) }}L</td>
+              <td>{{ r.refilledBy || '—' }}</td>
+              <td class="rh-td-ref">{{ r.reference || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #emptyTpl>
+          <div class="rh-empty">
+            <i class="fa fa-inbox rh-empty-icon"></i>
+            <p>{{ hasFilters ? 'No records match the current filters.' : 'No tank refills recorded yet.' }}</p>
+            <button class="rh-clear-btn" (click)="clearFilters()" *ngIf="hasFilters">Clear filters</button>
+          </div>
+        </ng-template>
+
+        <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

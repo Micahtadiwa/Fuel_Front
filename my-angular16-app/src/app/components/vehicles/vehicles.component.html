@@ -1,0 +1,24 @@
+<div class="vehicles-container">
+
+  <div class="vehicles-header">
+    <h1>Vehicles Section</h1>
+    <p>Manage vehicle records in the system</p>
+  </div>
+
+  <div class="vehicles-actions">
+
+    <button class="add-btn" (click)="handleAddVehicle()">
+      Add Vehicle
+    </button>
+
+    <button class="view-btn" (click)="handleViewVehicles()">
+      View Vehicles
+    </button>
+
+    <button *ngIf="isAdmin" class="view-btn" (click)="handleAssignVehicle()">
+      Assign Vehicle
+    </button>
+
+  </div>
+
+</div>

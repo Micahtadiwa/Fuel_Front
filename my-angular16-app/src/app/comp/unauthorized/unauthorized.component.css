@@ -1,0 +1,53 @@
+
+.unauthorized-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f4f6f9;
+}
+
+.card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.card h1 {
+  color: #e74c3c;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ddd;
+  font-weight: 500;
+}
+
+button.primary {
+  background: #007bff;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.9;
+}

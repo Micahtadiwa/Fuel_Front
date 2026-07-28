@@ -1,0 +1,136 @@
+<!-- LOADING -->
+<div class="er-loading" *ngIf="loading">
+  <i class="fa fa-spinner fa-spin"></i>
+  Loading users…
+</div>
+
+<!-- FORM -->
+<div class="er-container" *ngIf="!loading">
+  <div class="er-header">
+    <div class="er-header-icon"><i class="fa fa-shield"></i></div>
+    <div>
+      <h2 class="er-title">Edit User Role</h2>
+      <p class="er-subtitle">Change role and status for a system user.</p>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="er-alert er-alert--success" *ngIf="success">
+    <i class="fa fa-check-circle"></i> {{ success }}
+  </div>
+
+  <!-- ERROR -->
+  <div class="er-alert er-alert--error" *ngIf="error">
+    <i class="fa fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <form class="er-form" (ngSubmit)="handleSubmit()" #f="ngForm">
+
+    <!-- User search + selector -->
+    <div class="er-field">
+      <label class="er-label" for="userSearch">Search User</label>
+      <div class="er-search-wrap">
+        <i class="fa fa-search er-search-icon"></i>
+        <input
+          id="userSearch"
+          name="userSearch"
+          type="text"
+          class="er-search-input"
+          placeholder="Search by name or email…"
+          [(ngModel)]="userSearch"
+          autocomplete="off"
+        />
+        <button
+          *ngIf="userSearch"
+          type="button"
+          class="er-search-clear"
+          (click)="userSearch = ''"
+          title="Clear"
+        >
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="er-field">
+      <label class="er-label" for="userSelect">Select User</label>
+      <select
+        id="userSelect"
+        name="selectedUserId"
+        [(ngModel)]="selectedUserId"
+        (ngModelChange)="onUserChange()"
+        class="er-select"
+        required
+      >
+        <option *ngFor="let user of filteredUsers" [ngValue]="user.userId ?? user.id">
+          {{ user.username || user.name }} — {{ user.email }}
+        </option>
+      </select>
+      <p class="er-search-hint" *ngIf="filteredUsers.length === 0">No users match your search.</p>
+    </div>
+
+    <!-- Read-only info row -->
+    <div class="er-info-row" *ngIf="currentUser">
+      <div class="er-info-chip">
+        <span class="er-info-label">Username</span>
+        <span class="er-info-val">{{ formData.username }}</span>
+      </div>
+      <div class="er-info-chip">
+        <span class="er-info-label">Email</span>
+        <span class="er-info-val">{{ formData.email }}</span>
+      </div>
+      <div class="er-info-chip">
+        <span class="er-info-label">Current Role</span>
+        <span class="er-info-val er-role-badge">{{ formData.role | titlecase }}</span>
+      </div>
+    </div>
+
+    <!-- Role selector -->
+    <div class="er-field">
+      <label class="er-label">Select Role</label>
+      <div class="er-role-grid">
+        <button
+          *ngFor="let role of availableRoles"
+          type="button"
+          class="er-role-pill"
+          [class.er-role-pill--active]="formData.role === role"
+          (click)="setRole(role)"
+        >
+          <i class="fa" [ngClass]="roleIcon(role)"></i>
+          {{ role | titlecase }}
+        </button>
+      </div>
+      <!-- hidden input keeps ngForm validity -->
+      <input type="hidden" name="role" [(ngModel)]="formData.role" required />
+    </div>
+
+    <!-- Active toggle -->
+    <div class="er-field">
+      <label class="er-label">Account Status</label>
+      <div class="er-toggle-wrap" (click)="toggleActive()">
+        <div class="er-toggle" [class.er-toggle--on]="formData.isActive">
+          <div class="er-toggle-thumb"></div>
+        </div>
+        <span class="er-toggle-label" [class.er-toggle-label--active]="formData.isActive">
+          {{ formData.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="er-actions">
+      <button type="button" class="er-btn er-btn--secondary" routerLink="/userdata">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="er-btn er-btn--primary"
+        [disabled]="saving || !formData.role || f.invalid"
+      >
+        <i class="fa fa-spinner fa-spin" *ngIf="saving"></i>
+        <span>{{ saving ? 'Saving…' : 'Update Role' }}</span>
+      </button>
+    </div>
+
+  </form>
+</div>

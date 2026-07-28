@@ -1,0 +1,205 @@
+<div class="rp-page">
+
+  <!-- Header -->
+  <div class="rp-header">
+    <div>
+      <h1 class="rp-title">Fuel Reports</h1>
+      <p class="rp-subtitle">Browse, filter, and export fuel transaction records.</p>
+    </div>
+    <div class="rp-export-group">
+      <button class="rp-btn rp-btn--csv" (click)="exportCsv()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-text-o"></i> CSV
+      </button>
+      <button class="rp-btn rp-btn--pdf" (click)="exportPdf()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-pdf-o"></i> PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="rp-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin rp-state-icon"></i>
+    Loading records…
+  </div>
+
+  <!-- Error -->
+  <div class="rp-state rp-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle rp-state-icon"></i>
+    {{ error }}
+    <button class="rp-retry" (click)="fetchRecords()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Stats row -->
+    <div class="rp-stats-grid">
+      <div class="rp-stat-card rp-stat-card--blue">
+        <span class="rp-stat-label">Total Records</span>
+        <strong class="rp-stat-value">{{ stats.totalRecords }}</strong>
+      </div>
+      <div class="rp-stat-card rp-stat-card--amber">
+        <span class="rp-stat-label">Pending</span>
+        <strong class="rp-stat-value">{{ stats.pendingCount }}</strong>
+      </div>
+      <div class="rp-stat-card rp-stat-card--green">
+        <span class="rp-stat-label">Approved / Signed</span>
+        <strong class="rp-stat-value">{{ stats.approvedCount }}</strong>
+      </div>
+      <div class="rp-stat-card rp-stat-card--red">
+        <span class="rp-stat-label">Declined</span>
+        <strong class="rp-stat-value">{{ stats.declinedCount }}</strong>
+      </div>
+      <div class="rp-stat-card rp-stat-card--purple">
+        <span class="rp-stat-label">Total Litres</span>
+        <strong class="rp-stat-value">{{ formatNumber(stats.totalLiters) }}L</strong>
+      </div>
+      <div class="rp-stat-card rp-stat-card--gray">
+        <span class="rp-stat-label">Latest Date</span>
+        <strong class="rp-stat-value rp-stat-value--sm">{{ formatDate(stats.latestDate) }}</strong>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="rp-filters">
+
+      <!-- Fuel type toggle -->
+      <div class="rp-filter-group">
+        <span class="rp-filter-label">Fuel Type</span>
+        <div class="rp-toggle-group">
+          <button class="rp-toggle-btn"
+            [class.rp-toggle-btn--active-all]="fuelFilter === 'all'"
+            (click)="setFuelFilter('all')">All</button>
+          <button class="rp-toggle-btn"
+            [class.rp-toggle-btn--active-petrol]="fuelFilter === 'petrol'"
+            (click)="setFuelFilter('petrol')">
+            <span class="rp-dot rp-dot--petrol"></span>Petrol
+          </button>
+          <button class="rp-toggle-btn"
+            [class.rp-toggle-btn--active-diesel]="fuelFilter === 'diesel'"
+            (click)="setFuelFilter('diesel')">
+            <span class="rp-dot rp-dot--diesel"></span>Diesel
+          </button>
+        </div>
+      </div>
+
+      <!-- Status filter -->
+      <div class="rp-filter-group">
+        <span class="rp-filter-label">Status</span>
+        <div class="rp-toggle-group">
+          <button class="rp-toggle-btn" [class.rp-toggle-btn--active-all]="statusFilter === 'all'"      (click)="setStatusFilter('all')">All</button>
+          <button class="rp-toggle-btn" [class.rp-toggle-btn--pending]="statusFilter === 'PENDING'"     (click)="setStatusFilter('PENDING')">Pending</button>
+          <button class="rp-toggle-btn" [class.rp-toggle-btn--approved]="statusFilter === 'APPROVED'"   (click)="setStatusFilter('APPROVED')">Approved</button>
+          <button class="rp-toggle-btn" [class.rp-toggle-btn--declined]="statusFilter === 'DECLINED'"   (click)="setStatusFilter('DECLINED')">Declined</button>
+          <button class="rp-toggle-btn" [class.rp-toggle-btn--signed]="statusFilter === 'SIGNED'"       (click)="setStatusFilter('SIGNED')">Signed</button>
+        </div>
+      </div>
+
+      <!-- Date range -->
+      <div class="rp-filter-group">
+        <span class="rp-filter-label">Date From</span>
+        <input class="rp-input" type="date" [(ngModel)]="dateFrom" (ngModelChange)="resetPage()" />
+      </div>
+      <div class="rp-filter-group">
+        <span class="rp-filter-label">Date To</span>
+        <input class="rp-input" type="date" [(ngModel)]="dateTo" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Search -->
+      <div class="rp-filter-group rp-filter-group--search">
+        <span class="rp-filter-label">Search</span>
+        <div class="rp-search-wrap">
+          <i class="fa fa-search rp-search-icon"></i>
+          <input class="rp-input rp-input--search" type="text"
+            placeholder="Vehicle, driver, notes…"
+            [(ngModel)]="search" (ngModelChange)="resetPage()" />
+        </div>
+      </div>
+
+      <!-- Clear -->
+      <div class="rp-filter-group rp-filter-group--clear" *ngIf="hasActiveFilters">
+        <span class="rp-filter-label">&nbsp;</span>
+        <button class="rp-btn rp-btn--clear" (click)="clearFilters()">
+          <i class="fa fa-times"></i> Clear
+        </button>
+      </div>
+
+      <!-- Count -->
+      <div class="rp-filter-count" *ngIf="hasActiveFilters">
+        {{ filteredRecords.length }} of {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}
+      </div>
+
+    </div>
+
+    <!-- Table -->
+    <div class="rp-table-wrap">
+      <table class="rp-table" *ngIf="filteredRecords.length > 0; else emptyState">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Submitted By</th>
+            <th>User / Department</th>
+            <th>Manager Approved</th>
+            <th>Attendant Dispensed</th>
+            <th>Finance Signed</th>
+            <th>Fuel Type</th>
+            <th class="rp-th--num">Litres</th>
+            <th class="rp-th--num">Mileage</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of pagedRecords">
+            <td class="rp-td--vehicle">{{ r.vehicle || '—' }}</td>
+            <td>{{ r.submittedBy || '—' }}</td>
+            <td>{{ userAndDept(r) }}</td>
+            <td class="rp-td--approver">{{ r.approvedByManager   || '—' }}</td>
+            <td class="rp-td--approver">{{ r.approvedByAttendant || '—' }}</td>
+            <td class="rp-td--approver">{{ r.signedByFinance     || '—' }}</td>
+            <td>
+              <span class="rp-fuel-pill" [ngClass]="'rp-fuel-pill--' + (r.fuelType | lowercase)">
+                {{ r.fuelType || '—' }}
+              </span>
+            </td>
+            <td class="rp-td--num">{{ formatNumber(r.liters) }}</td>
+            <td class="rp-td--num">{{ r.mileage != null ? formatNumber(r.mileage) : '—' }}</td>
+            <td class="rp-td--date">{{ formatDate(r.fuelDate) }}</td>
+            <td>
+              <span class="rp-badge" [ngClass]="statusClass(r.status)">{{ r.status || '—' }}</span>
+            </td>
+            <td class="rp-td--notes">{{ r.notes || '—' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="rp-tfoot-row">
+            <td colspan="7" class="rp-tfoot-label">
+              Showing {{ pagedRecords.length }} of {{ filteredRecords.length }} record{{ filteredRecords.length !== 1 ? 's' : '' }}
+              <span *ngIf="hasActiveFilters" class="rp-tfoot-hint">(filtered)</span>
+            </td>
+            <td class="rp-td--num rp-tfoot-total">{{ formatNumber(stats.totalLiters) }}L</td>
+            <td colspan="4" class="rp-tfoot-hint">
+              {{ stats.approvedCount }} approved/signed &nbsp;·&nbsp; {{ stats.pendingCount }} pending &nbsp;·&nbsp; {{ stats.declinedCount }} declined &nbsp;·&nbsp; avg {{ formatNumber(stats.avgLiters) }}L/record
+            </td>
+          </tr>
+        </tfoot>
+      <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="rp-empty">
+          <i class="fa fa-inbox rp-empty-icon"></i>
+          <p class="rp-empty-msg">No records match the current filters.</p>
+          <button class="rp-btn rp-btn--clear" (click)="clearFilters()" *ngIf="hasActiveFilters">
+            Clear filters
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+  </ng-container>
+</div>
