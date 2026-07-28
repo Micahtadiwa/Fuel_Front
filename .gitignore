@@ -56,3 +56,6 @@ Thumbs.db
 
 # Claude Code local config
 .claude/settings.local.json
+
+# Angular app moved to its own repo (Fuel-backend)
+my-angular16-app/
