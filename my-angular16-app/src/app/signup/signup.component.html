@@ -1,0 +1,41 @@
+<div class="signup-page">
+  <div class="login-only-container">
+    <div class="form-container sign-in-container">
+      <div class="login-brand">
+        <i class="fa fa-gas-pump"></i>
+        <span>Fuel App</span>
+      </div>
+
+      <form>
+        <h1>Sign In</h1>
+        <span>Enter your credentials to access the fleet management system</span>
+
+        <input
+          type="email"
+          name="loginEmail"
+          placeholder="Email"
+          [(ngModel)]="loginObject.email"
+        />
+
+        <input
+          type="password"
+          name="loginPassword"
+          placeholder="Password"
+          [(ngModel)]="loginObject.password"
+        />
+
+        <p class="auth-notice" *ngIf="notice">{{ notice }}</p>
+
+        <p class="auth-error" *ngIf="error">{{ error }}</p>
+
+        <button type="button" (click)="onLogin()" [disabled]="loading">
+          {{ loading ? 'Signing In...' : 'Sign In' }}
+        </button>
+
+        <p class="signup-note">
+          New users? Ask your administrator to create your account.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,221 @@
+<div class="fa-page">
+
+  <!-- Header -->
+  <div class="fa-header">
+    <div class="fa-header-icon"><i class="fa fa-pencil-square-o"></i></div>
+    <div class="fa-header-text">
+      <h1 class="fa-title">Finance Authorization</h1>
+      <p class="fa-subtitle">Review and sign approved fuel dispensing records.</p>
+    </div>
+    <div class="fa-export-group">
+      <span class="fa-export-label">All Filtered</span>
+      <button class="fa-export-btn fa-export-btn--csv" (click)="exportCsv()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-text-o"></i> CSV
+      </button>
+      <button class="fa-export-btn fa-export-btn--pdf" (click)="exportPdf()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-pdf-o"></i> PDF
+      </button>
+      <span class="fa-export-divider"></span>
+      <span class="fa-export-label fa-export-label--signed">Signed Only</span>
+      <button class="fa-export-btn fa-export-btn--signed-csv" (click)="exportSignedCsv()"
+        [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-text-o"></i> CSV
+      </button>
+      <button class="fa-export-btn fa-export-btn--signed-pdf" (click)="exportSignedPdf()"
+        [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-pdf-o"></i> PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="fa-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin fa-state-icon"></i>
+    Loading records…
+  </div>
+
+  <!-- Error -->
+  <div class="fa-state fa-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle fa-state-icon"></i>
+    {{ error }}
+    <button class="fa-retry" (click)="fetchRecords()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Stats -->
+    <div class="fa-stats">
+      <div class="fa-stat fa-stat--blue">
+        <div class="fa-stat-icon"><i class="fa fa-list"></i></div>
+        <div><div class="fa-stat-label">Total Approved</div><div class="fa-stat-value">{{ stats.total }}</div></div>
+      </div>
+      <div class="fa-stat fa-stat--amber">
+        <div class="fa-stat-icon"><i class="fa fa-clock-o"></i></div>
+        <div><div class="fa-stat-label">Awaiting Signature</div><div class="fa-stat-value">{{ stats.waiting }}</div></div>
+      </div>
+      <div class="fa-stat fa-stat--green">
+        <div class="fa-stat-icon"><i class="fa fa-check-circle"></i></div>
+        <div><div class="fa-stat-label">Signed</div><div class="fa-stat-value">{{ stats.signed }}</div></div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="fa-filters">
+
+      <!-- Fuel type -->
+      <div class="fa-filter-group">
+        <span class="fa-filter-label">Fuel Type</span>
+        <div class="fa-toggle">
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--active]="fuelFilter === 'all'"    (click)="fuelFilter = 'all'; resetPage()">All</button>
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--petrol]="fuelFilter === 'petrol'" (click)="fuelFilter = 'petrol'; resetPage()">
+            <span class="fa-dot fa-dot--petrol"></span>Petrol
+          </button>
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--diesel]="fuelFilter === 'diesel'" (click)="fuelFilter = 'diesel'; resetPage()">
+            <span class="fa-dot fa-dot--diesel"></span>Diesel
+          </button>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="fa-filter-group">
+        <span class="fa-filter-label">Status</span>
+        <div class="fa-toggle">
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--active]="statusFilter === 'all'"      (click)="statusFilter = 'all'; resetPage()">All</button>
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--approved]="statusFilter === 'approved'" (click)="statusFilter = 'approved'; resetPage()">
+            <i class="fa fa-thumbs-up"></i>Attendant Approved
+          </button>
+          <button class="fa-toggle-btn" [class.fa-toggle-btn--signed]="statusFilter === 'signed'"   (click)="statusFilter = 'signed'; resetPage()">
+            <i class="fa fa-check-circle"></i>Signed
+          </button>
+        </div>
+      </div>
+
+      <!-- Date from -->
+      <div class="fa-filter-group">
+        <span class="fa-filter-label">From Date</span>
+        <input class="fa-date-input" type="date" [(ngModel)]="dateFrom" [max]="dateTo || ''" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Date to -->
+      <div class="fa-filter-group">
+        <span class="fa-filter-label">To Date</span>
+        <input class="fa-date-input" type="date" [(ngModel)]="dateTo" [min]="dateFrom || ''" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Clear -->
+      <div class="fa-filter-group fa-filter-group--clear" *ngIf="hasFilters">
+        <span class="fa-filter-label">&nbsp;</span>
+        <button class="fa-clear-btn" (click)="clearFilters()">
+          <i class="fa fa-times"></i> Clear
+        </button>
+      </div>
+
+      <!-- Result count -->
+      <div class="fa-filter-count" *ngIf="hasFilters">
+        <span>{{ filteredRecords.length }} of {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}</span>
+      </div>
+
+    </div>
+
+    <!-- Table -->
+    <div class="fa-table-wrap">
+      <table class="fa-table" *ngIf="filteredRecords.length > 0; else emptyTpl">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Submitted By</th>
+            <th>User and Department</th>
+            <th>Fuel Type</th>
+            <th class="fa-th-num">Litres</th>
+            <th class="fa-th-num">Mileage</th>
+            <th>Date</th>
+            <th>Notes</th>
+            <th>Status</th>
+            <th class="fa-th-action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let r of pagedRecords">
+            <tr [class.fa-row--signed]="isSigned(r.id)">
+              <td class="fa-td--vehicle">{{ r.vehicle || '—' }}</td>
+              <td>{{ r.submittedBy || '—' }}</td>
+              <td>{{ r.driver || '—' }}</td>
+              <td>
+                <span class="fa-fuel-pill" [ngClass]="'fa-fuel-pill--' + (r.fuelType || '').toLowerCase()">
+                  {{ r.fuelType || '—' }}
+                </span>
+              </td>
+              <td class="fa-td-num">{{ formatNumber(r.liters) }}L</td>
+              <td class="fa-td_num">{{ r.mileage != null ? formatNumber(r.mileage) : '—' }}</td>
+              <td class="fa-td-date">{{ formatDate(r.fuelDate) }}</td>
+              <td class="fa-td-notes">{{ r.notes || '—' }}</td>
+              <td>
+                <span class="fa-badge" [ngClass]="isSigned(r.id) ? 'fa-badge--signed' : 'fa-badge--approved'">
+                  <i class="fa" [ngClass]="isSigned(r.id) ? 'fa-check-circle' : 'fa-thumbs-up'"></i>
+                  {{ isSigned(r.id) ? 'Signed' : 'Attendant Approved' }}
+                </span>
+              </td>
+              <td class="fa-td-action">
+                <button
+                  *ngIf="!isSigned(r.id)"
+                  class="fa-sign-btn"
+                  [class.fa-sign-btn--loading]="isSigning(r.id)"
+                  [disabled]="isSigning(r.id)"
+                  (click)="requestSign(r.id)">
+                  <i class="fa" [ngClass]="isSigning(r.id) ? 'fa-spinner fa-spin' : 'fa-pencil'"></i>
+                  {{ isSigning(r.id) ? 'Signing…' : 'Sign' }}
+                </button>
+                <span class="fa-signed-stamp" *ngIf="isSigned(r.id)">
+                  <i class="fa fa-check-circle"></i> Signed
+                </span>
+              </td>
+            </tr>
+            <!-- Inline row error -->
+            <tr class="fa-error-row" *ngIf="rowError(r.id)">
+              <td colspan="10">
+                <i class="fa fa-exclamation-triangle"></i> {{ rowError(r.id) }}
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+      </table>
+
+      <ng-template #emptyTpl>
+        <div class="fa-empty">
+          <i class="fa fa-filter fa-empty-icon"></i>
+          <p class="fa-empty-msg">
+            {{ hasFilters ? 'No records match the current filters.' : 'No approved or signed records found.' }}
+          </p>
+          <button class="fa-clear-btn" (click)="clearFilters()" *ngIf="hasFilters">
+            <i class="fa fa-times"></i> Clear filters
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+  </ng-container>
+
+  <!-- Confirm modal -->
+  <div class="fa-modal-backdrop" *ngIf="confirmId != null" (click)="cancelSign()">
+    <div class="fa-modal" (click)="$event.stopPropagation()">
+      <div class="fa-modal-icon"><i class="fa fa-pencil-square-o"></i></div>
+      <h2 class="fa-modal-title">Confirm Signature</h2>
+      <p class="fa-modal-body">
+        You are signing off on this fuel record as <strong>{{ signerName }}</strong>.
+        This action confirms that the dispensing has been reviewed and authorized.
+      </p>
+      <div class="fa-modal-actions">
+        <button class="fa-modal-btn fa-modal-btn--cancel" (click)="cancelSign()">Cancel</button>
+        <button class="fa-modal-btn fa-modal-btn--confirm" (click)="confirmSign()">
+          <i class="fa fa-check"></i> Confirm & Sign
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

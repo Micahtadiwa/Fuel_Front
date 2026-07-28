@@ -1,0 +1,81 @@
+.rh-page { padding: 24px; max-width: 1200px; }
+
+.rh-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.rh-header-icon { width: 48px; height: 48px; border-radius: 12px; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.rh-title { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 2px; }
+.rh-subtitle { font-size: 13px; color: #6b7280; }
+
+/* States */
+.rh-state { display: flex; align-items: center; gap: 10px; padding: 20px; color: #6b7280; font-size: 14px; }
+.rh-state--error { color: #dc2626; }
+.rh-state-icon { font-size: 20px; }
+.rh-retry { margin-left: 8px; background: none; border: 1px solid currentColor; border-radius: 4px; padding: 2px 10px; cursor: pointer; font-size: 12px; color: inherit; }
+
+/* Stats */
+.rh-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.rh-stat { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.1); display: flex; align-items: center; gap: 14px; }
+.rh-stat-icon { font-size: 22px; opacity: .8; }
+.rh-stat-val { font-size: 22px; font-weight: 700; color: #111827; }
+.rh-stat-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+.rh-stat--blue   { border-left: 4px solid #2563eb; } .rh-stat--blue   .rh-stat-icon { color: #2563eb; }
+.rh-stat--green  { border-left: 4px solid #059669; } .rh-stat--green  .rh-stat-icon { color: #059669; }
+.rh-stat--petrol { border-left: 4px solid #1d4ed8; } .rh-stat--petrol .rh-stat-icon { color: #1d4ed8; }
+.rh-stat--diesel { border-left: 4px solid #92400e; } .rh-stat--diesel .rh-stat-icon { color: #92400e; }
+
+/* Filters */
+.rh-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 20px; }
+.rh-filter-group { display: flex; flex-direction: column; gap: 4px; }
+.rh-filter-group--search { flex: 1; min-width: 200px; }
+.rh-filter-label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+.rh-input { height: 36px; padding: 0 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #fff; }
+.rh-input--search { padding-left: 32px; width: 100%; }
+.rh-search-wrap { position: relative; }
+.rh-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 13px; }
+
+/* Toggle */
+.rh-toggle { display: flex; background: #f3f4f6; border-radius: 8px; padding: 3px; gap: 2px; }
+.rh-toggle-btn { height: 30px; padding: 0 12px; border: none; border-radius: 6px; background: transparent; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all .15s; }
+.rh-toggle-btn--active, .rh-toggle-btn--petrol, .rh-toggle-btn--diesel { background: #fff; color: #111827; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.rh-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.rh-dot--petrol { background: #1d4ed8; }
+.rh-dot--diesel { background: #92400e; }
+.rh-clear-btn { height: 36px; padding: 0 12px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; color: #6b7280; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.rh-clear-btn:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+
+/* Card & table */
+.rh-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.rh-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 0; }
+.rh-card-title { font-size: 15px; font-weight: 600; color: #111827; }
+.rh-card-sub { font-size: 12px; color: #6b7280; }
+.rh-table-wrap { overflow-x: auto; padding-bottom: 8px; }
+.rh-table { width: 100%; border-collapse: collapse; }
+.rh-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; padding: 10px 16px; text-align: left; border-bottom: 2px solid #f3f4f6; white-space: nowrap; }
+.rh-table td { padding: 11px 16px; border-bottom: 1px solid #f9fafb; font-size: 13px; vertical-align: middle; }
+.rh-table tr:last-child td { border-bottom: none; }
+.rh-table tr:hover td { background: #f9fafb; }
+.rh-th-num, .rh-td-num { text-align: right; font-variant-numeric: tabular-nums; }
+.rh-td-idx { color: #9ca3af; font-size: 12px; width: 36px; }
+.rh-td-date { white-space: nowrap; color: #374151; }
+.rh-td-ref { color: #6b7280; font-size: 12px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rh-liters { color: #059669; font-weight: 700; }
+
+/* Fuel pills */
+.rh-fuel-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.rh-fuel-pill--petrol { background: #dbeafe; color: #1e40af; }
+.rh-fuel-pill--diesel { background: #fef3c7; color: #92400e; }
+
+/* Empty */
+.rh-empty { text-align: center; padding: 48px 24px; color: #9ca3af; }
+.rh-empty-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+/* Pagination */
+.pg-bar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 16px; border-top: 1px solid #f3f4f6; }
+.pg-btn { height: 32px; padding: 0 14px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; color: #374151; font-size: 13px; cursor: pointer; }
+.pg-btn:disabled { opacity: .4; cursor: default; }
+.pg-info { font-size: 13px; color: #6b7280; }
+
+@media (max-width: 640px) {
+  .rh-page { padding: 16px; }
+  .rh-stats { grid-template-columns: 1fr 1fr; }
+  .rh-filters { flex-direction: column; }
+}

@@ -1,0 +1,148 @@
+<div class="ch-page">
+
+  <!-- Header -->
+  <div class="ch-header">
+    <h1 class="ch-title">Fuel Analytics</h1>
+    <p class="ch-subtitle">Live metrics from fuel records and user data.</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="ch-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin ch-state-icon"></i>
+    Loading analytics…
+  </div>
+
+  <!-- Error -->
+  <div class="ch-state ch-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle ch-state-icon"></i>
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- KPI Cards -->
+    <div class="ch-kpi-grid">
+      <div class="ch-kpi-card" *ngFor="let card of kpiCards" [ngClass]="card.tone">
+        <span class="ch-kpi-label">{{ card.label }}</span>
+        <strong class="ch-kpi-value">{{ card.value }}</strong>
+        <span class="ch-kpi-sub">{{ card.sub }}</span>
+      </div>
+    </div>
+
+    <!-- Middle row: Fuel split + Role distribution -->
+    <div class="ch-mid-grid">
+
+      <!-- Fuel Type Split -->
+      <section class="ch-panel">
+        <div class="ch-panel-header">
+          <h2>Fuel Type Split</h2>
+          <p>Approved litres by fuel type</p>
+        </div>
+
+        <div class="ch-fuel-bars">
+          <div class="ch-fuel-row" *ngFor="let item of fuelTypeBars">
+            <div class="ch-fuel-meta">
+              <span class="ch-fuel-label">
+                <span class="ch-dot" [ngClass]="item.label.toLowerCase()"></span>
+                {{ item.label }}
+              </span>
+              <span class="ch-fuel-val">{{ fmtNum(item.value) }}L</span>
+            </div>
+            <div class="ch-bar-track">
+              <div
+                class="ch-bar-fill"
+                [ngClass]="item.label.toLowerCase()"
+                [style.width.%]="item.pct">
+              </div>
+            </div>
+            <span class="ch-bar-pct">{{ item.pct }}%</span>
+          </div>
+
+          <div class="ch-donut-row">
+            <div class="ch-donut-seg">
+              <div class="ch-donut-block ch-donut-block--diesel" [style.flex]="dieselPct"></div>
+              <div class="ch-donut-block ch-donut-block--petrol" [style.flex]="petrolPct"></div>
+            </div>
+            <div class="ch-donut-labels">
+              <span class="ch-dot diesel"></span> Diesel {{ dieselPct }}%
+              &nbsp;&nbsp;
+              <span class="ch-dot petrol"></span> Petrol {{ petrolPct }}%
+            </div>
+          </div>
+        </div>
+
+        <div class="ch-approval-wrap">
+          <span class="ch-approval-label">Approval Rate</span>
+          <strong class="ch-approval-val">{{ approvedPct }}%</strong>
+          <div class="ch-approval-track">
+            <div class="ch-approval-fill" [style.width.%]="approvedPct"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Role Distribution -->
+      <section class="ch-panel">
+        <div class="ch-panel-header">
+          <h2>User Roles</h2>
+          <p>Registered users by role</p>
+        </div>
+
+        <div class="ch-role-bars">
+          <div class="ch-role-row" *ngFor="let item of roleBars">
+            <div class="ch-role-meta">
+              <span class="ch-role-label">{{ item.label }}</span>
+              <span class="ch-role-val">{{ item.value }}</span>
+            </div>
+            <div class="ch-bar-track">
+              <div class="ch-bar-fill ch-bar-fill--role" [style.width.%]="item.pct"></div>
+            </div>
+          </div>
+
+          <div class="ch-no-roles" *ngIf="roleBars.length === 0">
+            No user data available.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Monthly Trend -->
+    <section class="ch-panel ch-trend-panel">
+      <div class="ch-panel-header">
+        <h2>Monthly Fuel Consumption</h2>
+        <p>Approved litres dispensed — last 6 months</p>
+      </div>
+
+      <div class="ch-trend-grid">
+        <div class="ch-trend-col" *ngFor="let m of monthlyTrend">
+          <div class="ch-trend-bars-wrap">
+            <div class="ch-trend-bar-group">
+              <div
+                class="ch-trend-bar ch-trend-bar--diesel"
+                [style.height.%]="m.total > 0 ? (m.diesel / m.total * 100) * (m.barPct / 100) : 0"
+                [title]="'Diesel: ' + fmtNum(m.diesel) + 'L'">
+              </div>
+              <div
+                class="ch-trend-bar ch-trend-bar--petrol"
+                [style.height.%]="m.total > 0 ? (m.petrol / m.total * 100) * (m.barPct / 100) : 0"
+                [title]="'Petrol: ' + fmtNum(m.petrol) + 'L'">
+              </div>
+            </div>
+          </div>
+          <div class="ch-trend-meta">
+            <strong>{{ fmtNum(m.total) }}L</strong>
+            <span>{{ m.label }}</span>
+            <small *ngIf="m.total > 0">D: {{ fmtNum(m.diesel) }} / P: {{ fmtNum(m.petrol) }}</small>
+            <small *ngIf="m.total === 0" class="ch-no-data">No data</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="ch-trend-legend">
+        <span><span class="ch-dot diesel"></span> Diesel</span>
+        <span><span class="ch-dot petrol"></span> Petrol</span>
+      </div>
+    </section>
+
+  </ng-container>
+</div>

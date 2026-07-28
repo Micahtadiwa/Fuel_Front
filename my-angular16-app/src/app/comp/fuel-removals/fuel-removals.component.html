@@ -1,0 +1,201 @@
+<div class="fr-page">
+
+  <!-- Header -->
+  <div class="fr-header">
+    <div class="fr-header-icon"><i class="fa fa-tint"></i></div>
+    <div class="fr-header-text">
+      <h1 class="fr-title">Fuel Removed from Tanks</h1>
+      <p class="fr-subtitle">Approved and signed fuel records showing actual tank deductions.</p>
+    </div>
+    <div class="fr-export-group">
+      <button class="fr-btn fr-btn--csv" (click)="exportCsv()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-text-o"></i> CSV
+      </button>
+      <button class="fr-btn fr-btn--pdf" (click)="exportPdf()" [disabled]="loading || filteredRecords.length === 0">
+        <i class="fa fa-file-pdf-o"></i> PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="fr-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin fr-state-icon"></i>
+    Loading records…
+  </div>
+
+  <!-- Error -->
+  <div class="fr-state fr-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle fr-state-icon"></i>
+    {{ error }}
+    <button class="fr-retry" (click)="fetchRecords()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Stats -->
+    <div class="fr-stats">
+      <div class="fr-stat fr-stat--blue">
+        <i class="fa fa-list fr-stat-icon"></i>
+        <div>
+          <div class="fr-stat-val">{{ stats.total }}</div>
+          <div class="fr-stat-label">Total Removals</div>
+        </div>
+      </div>
+      <div class="fr-stat fr-stat--red">
+        <i class="fa fa-tint fr-stat-icon"></i>
+        <div>
+          <div class="fr-stat-val">{{ formatNumber(stats.totalL) }}L</div>
+          <div class="fr-stat-label">Total Removed</div>
+        </div>
+      </div>
+      <div class="fr-stat fr-stat--blue2">
+        <i class="fa fa-flask fr-stat-icon"></i>
+        <div>
+          <div class="fr-stat-val">{{ formatNumber(stats.petrolL) }}L</div>
+          <div class="fr-stat-label">Petrol Removed</div>
+        </div>
+      </div>
+      <div class="fr-stat fr-stat--amber">
+        <i class="fa fa-tint fr-stat-icon"></i>
+        <div>
+          <div class="fr-stat-val">{{ formatNumber(stats.dieselL) }}L</div>
+          <div class="fr-stat-label">Diesel Removed</div>
+        </div>
+      </div>
+      <div class="fr-stat fr-stat--green">
+        <i class="fa fa-lock fr-stat-icon"></i>
+        <div>
+          <div class="fr-stat-val">{{ stats.signedCnt }}</div>
+          <div class="fr-stat-label">Finance Signed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="fr-filters">
+
+      <!-- Fuel type -->
+      <div class="fr-filter-group">
+        <span class="fr-filter-label">Fuel Type</span>
+        <div class="fr-toggle">
+          <button class="fr-toggle-btn" [class.fr-toggle-btn--active]="fuelFilter === 'all'"    (click)="fuelFilter = 'all'; resetPage()">All</button>
+          <button class="fr-toggle-btn" [class.fr-toggle-btn--petrol]="fuelFilter === 'petrol'" (click)="fuelFilter = 'petrol'; resetPage()">
+            <span class="fr-dot fr-dot--petrol"></span>Petrol
+          </button>
+          <button class="fr-toggle-btn" [class.fr-toggle-btn--diesel]="fuelFilter === 'diesel'" (click)="fuelFilter = 'diesel'; resetPage()">
+            <span class="fr-dot fr-dot--diesel"></span>Diesel
+          </button>
+        </div>
+      </div>
+
+      <!-- Date From -->
+      <div class="fr-filter-group">
+        <span class="fr-filter-label">Date From</span>
+        <input class="fr-input" type="date" [(ngModel)]="dateFrom" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Date To -->
+      <div class="fr-filter-group">
+        <span class="fr-filter-label">Date To</span>
+        <input class="fr-input" type="date" [(ngModel)]="dateTo" (ngModelChange)="resetPage()" />
+      </div>
+
+      <!-- Approved by name -->
+      <div class="fr-filter-group fr-filter-group--search">
+        <span class="fr-filter-label">Approved By</span>
+        <div class="fr-search-wrap">
+          <i class="fa fa-search fr-search-icon"></i>
+          <input class="fr-input fr-input--search" type="text"
+                 placeholder="Approver name…"
+                 [(ngModel)]="approvedBySearch" (ngModelChange)="resetPage()" />
+        </div>
+      </div>
+
+      <!-- Clear -->
+      <div class="fr-filter-group" *ngIf="hasActiveFilters">
+        <span class="fr-filter-label">&nbsp;</span>
+        <button class="fr-clear-btn" (click)="clearFilters()">
+          <i class="fa fa-times"></i> Clear
+        </button>
+      </div>
+
+      <!-- Record count -->
+      <div class="fr-filter-count" *ngIf="hasActiveFilters">
+        {{ filteredRecords.length }} of {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}
+      </div>
+
+    </div>
+
+    <!-- Table -->
+    <div class="fr-card">
+      <table class="fr-table" *ngIf="filteredRecords.length > 0; else emptyTpl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Vehicle</th>
+            <th>User / Department</th>
+            <th>Manager Approved</th>
+            <th>Attendant Dispensed</th>
+            <th>Finance Signed</th>
+            <th>Fuel Type</th>
+            <th class="fr-th--num">Litres Removed</th>
+            <th class="fr-th--num">Mileage</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of pagedRecords; let i = index">
+            <td class="fr-td--idx">{{ (page - 1) * PAGE_SIZE + i + 1 }}</td>
+            <td class="fr-td--date">{{ formatDate(r.fuelDate) }}</td>
+            <td class="fr-td--plate">{{ r.vehicle || '—' }}</td>
+            <td>{{ userAndDept(r) }}</td>
+            <td class="fr-td--approver">{{ r.approvedByManager   || '—' }}</td>
+            <td class="fr-td--approver">{{ r.approvedByAttendant || '—' }}</td>
+            <td class="fr-td--approver">{{ r.signedByFinance     || '—' }}</td>
+            <td>
+              <span class="fr-fuel-pill" [ngClass]="'fr-fuel-pill--' + (r.fuelType || '').toLowerCase()">
+                {{ r.fuelType || '—' }}
+              </span>
+            </td>
+            <td class="fr-td--num fr-td--liters">{{ formatNumber(r.liters) }}L</td>
+            <td class="fr-td--num">{{ r.mileage != null ? formatNumber(r.mileage) : '—' }}</td>
+            <td>
+              <span class="fr-badge" [ngClass]="statusClass(r.status)">
+                {{ r.status || '—' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="fr-tfoot-row">
+            <td colspan="8" class="fr-tfoot-label">
+              Showing {{ pagedRecords.length }} of {{ filteredRecords.length }} record{{ filteredRecords.length !== 1 ? 's' : '' }}
+              <span *ngIf="hasActiveFilters">(filtered)</span>
+            </td>
+            <td class="fr-td--num fr-tfoot-total">{{ formatNumber(stats.totalL) }}L</td>
+            <td colspan="2" class="fr-tfoot-hint">
+              Petrol {{ formatNumber(stats.petrolL) }}L &nbsp;·&nbsp; Diesel {{ formatNumber(stats.dieselL) }}L
+            </td>
+          </tr>
+        </tfoot>
+      <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+      </table>
+
+      <ng-template #emptyTpl>
+        <div class="fr-empty">
+          <i class="fa fa-inbox fr-empty-icon"></i>
+          <p>No approved fuel removals match the current filters.</p>
+          <button class="fr-clear-btn" (click)="clearFilters()" *ngIf="hasActiveFilters">
+            Clear filters
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+  </ng-container>
+</div>

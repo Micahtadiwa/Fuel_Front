@@ -1,0 +1,87 @@
+<div class="userdata-page">
+  <!-- TITLE -->
+  <div class="title-section">
+    <h1 class="page-title">All Users</h1>
+    <p class="page-subtitle">View and manage system users.</p>
+  </div>
+
+  <!-- STATS DASHBOARD -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <i class="fa fa-users stat-icon"></i>
+      <div class="stat-number">{{ stats.total }}</div>
+      <span class="stat-label">Total Users</span>
+    </div>
+    <div class="stat-card active">
+      <i class="fa fa-check-circle stat-icon"></i>
+      <div class="stat-number">{{ stats.active }}</div>
+      <span class="stat-label">Active</span>
+    </div>
+    <div class="stat-card inactive">
+      <i class="fa fa-times-circle stat-icon"></i>
+      <div class="stat-number">{{ stats.inactive }}</div>
+      <span class="stat-label">Inactive</span>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>Search by Name</label>
+      <input type="text" 
+             [(ngModel)]="nameFilter" 
+             (ngModelChange)="applyFilters()"
+             placeholder="Search username...">
+    </div>
+    <div class="filter-group">
+      <label>Filter by Role</label>
+      <select [(ngModel)]="roleFilter" (ngModelChange)="applyFilters()">
+        <option value="">All Roles</option>
+        <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Filter by Status</label>
+      <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+        <option value="">All Statuses</option>
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <button class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- USERS TABLE -->
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of pagedUsers">
+        <td>{{ user.id }}</td>
+        <td>{{ user.username || user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td><span class="role-badge">{{ user.role }}</span></td>
+        <td><span class="status-badge" [ngClass]="user.status?.toLowerCase()">{{ user.status }}</span></td>
+        <td><a [routerLink]="['/editrole', user.id]" class="edit-link"><i class="fa fa-pencil"></i> Edit Role</a></td>
+      </tr>
+      <tr *ngIf="filteredUsers.length === 0">
+        <td colspan="5" class="no-data">No users found matching your filters.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="pg-bar" *ngIf="totalPages > 1">
+    <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+    <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+    <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+  </div>
+</div>

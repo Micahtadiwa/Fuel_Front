@@ -1,0 +1,74 @@
+<div class="pu-page">
+
+  <div class="pu-header">
+    <div class="pu-header-icon"><i class="fa fa-user-clock"></i></div>
+    <div>
+      <h1 class="pu-title">Pending User Approvals</h1>
+      <p class="pu-subtitle">Review and approve or reject users created by Admin Maker.</p>
+    </div>
+  </div>
+
+  <div class="pu-alert pu-alert--success" *ngIf="successMsg">
+    <i class="fa fa-check-circle"></i> {{ successMsg }}
+  </div>
+  <div class="pu-alert pu-alert--error" *ngIf="error">
+    <i class="fa fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <div class="pu-loading" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin"></i> Loading pending users…
+  </div>
+
+  <div class="pu-empty" *ngIf="!loading && users.length === 0 && !error">
+    <i class="fa fa-check-double pu-empty-icon"></i>
+    <p>No pending approvals. All users have been reviewed.</p>
+  </div>
+
+  <div class="pu-table-wrap" *ngIf="!loading && users.length > 0">
+    <table class="pu-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>
+            <div class="pu-user">
+              <div class="pu-avatar">{{ (user.username || '?').charAt(0).toUpperCase() }}</div>
+              <div>
+                <div class="pu-username">{{ user.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="pu-email">{{ user.email }}</td>
+          <td><span class="pu-role-badge">{{ user.role | titlecase }}</span></td>
+          <td class="pu-date">{{ user.createdAt | date:'dd MMM yyyy' }}</td>
+          <td>
+            <div class="pu-actions">
+              <button
+                class="pu-btn pu-btn--approve"
+                (click)="approve(user)"
+                [disabled]="actioningId === (user.userId ?? user.id)"
+              >
+                <i class="fa fa-check"></i> Approve
+              </button>
+              <button
+                class="pu-btn pu-btn--reject"
+                (click)="reject(user)"
+                [disabled]="actioningId === (user.userId ?? user.id)"
+              >
+                <i class="fa fa-times"></i> Reject
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

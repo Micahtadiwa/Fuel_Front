@@ -1,0 +1,440 @@
+/* ── Page ─────────────────────────────────────────────────────────────────────── */
+.rp-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.rp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rp-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.rp-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── States ──────────────────────────────────────────────────────────────────── */
+.rp-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.rp-state--error {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.rp-state-icon { font-size: 18px; }
+
+.rp-retry {
+  margin-left: auto;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #be123c;
+  background: transparent;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.rp-retry:hover { background: #fff1f2; }
+
+/* ── Stat Cards ──────────────────────────────────────────────────────────────── */
+.rp-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 14px;
+}
+
+.rp-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-top: 4px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+}
+
+.rp-stat-card--blue   { border-top-color: #2563eb; }
+.rp-stat-card--green  { border-top-color: #16a34a; }
+.rp-stat-card--amber  { border-top-color: #d97706; }
+.rp-stat-card--red    { border-top-color: #dc2626; }
+.rp-stat-card--purple { border-top-color: #7c3aed; }
+.rp-stat-card--gray   { border-top-color: #6b7280; }
+
+.rp-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.rp-stat-value--sm { font-size: 18px; }
+
+/* ── Filters ─────────────────────────────────────────────────────────────────── */
+.rp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+}
+
+.rp-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rp-filter-group--search { flex: 1; min-width: 200px; }
+.rp-filter-group--clear  { justify-content: flex-end; }
+
+.rp-filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Toggle group (fuel type) ────────────────────────────────────────────────── */
+.rp-toggle-group {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.rp-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fff;
+  color: #374151;
+  border: none;
+  border-right: 1px solid #d1d5db;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rp-toggle-btn:last-child { border-right: none; }
+.rp-toggle-btn:hover      { background: #f9fafb; }
+
+.rp-toggle-btn--active-all    { background: #1e40af; color: #fff; }
+.rp-toggle-btn--active-petrol { background: #1d4ed8; color: #fff; }
+.rp-toggle-btn--active-diesel { background: #b45309; color: #fff; }
+
+/* Status toggles */
+.rp-toggle-btn--pending  { background: #fef9c3; color: #854d0e; }
+.rp-toggle-btn--approved { background: #dcfce7; color: #15803d; }
+.rp-toggle-btn--declined { background: #fff1f2; color: #be123c; }
+.rp-toggle-btn--signed   { background: #dbeafe; color: #1d4ed8; }
+
+/* Filter result count */
+.rp-filter-count {
+  align-self: flex-end;
+  font-size: 12px;
+  color: #6b7280;
+  padding-bottom: 10px;
+  white-space: nowrap;
+}
+
+/* ── Dots ────────────────────────────────────────────────────────────────────── */
+.rp-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rp-dot--petrol { background: #3b82f6; }
+.rp-dot--diesel { background: #f59e0b; }
+
+/* ── Select / Input ──────────────────────────────────────────────────────────── */
+.rp-select,
+.rp-input {
+  padding: 9px 14px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.rp-select {
+  padding-right: 36px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-color: #f9fafb;
+}
+
+.rp-select:focus,
+.rp-input:focus {
+  border-color: #3b82f6;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+
+/* ── Search input ────────────────────────────────────────────────────────────── */
+.rp-search-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.rp-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.rp-input--search {
+  width: 100%;
+  padding-left: 36px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+.rp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.rp-export-group {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rp-btn--csv {
+  background: #16a34a;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.rp-btn--csv:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.rp-btn--csv:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rp-btn--pdf {
+  background: #dc2626;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.rp-btn--pdf:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.rp-btn--pdf:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rp-btn--clear {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 9px 14px;
+}
+
+.rp-btn--clear:hover { background: #e5e7eb; }
+
+/* ── Table ───────────────────────────────────────────────────────────────────── */
+.rp-table-wrap {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+  overflow: hidden;
+}
+
+.rp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.rp-table thead {
+  background: #f9fafb;
+}
+
+.rp-table th,
+.rp-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.rp-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rp-table td { color: #374151; }
+
+.rp-table tbody tr:hover { background: #f9fafb; }
+.rp-table tbody tr:last-child td { border-bottom: none; }
+
+/* Column widths */
+.rp-td--vehicle { font-weight: 600; color: #111827; }
+.rp-th--num,
+.rp-td--num     { text-align: right; font-variant-numeric: tabular-nums; }
+.rp-td--date    { white-space: nowrap; }
+.rp-td--notes   { color: #6b7280; font-size: 13px; }
+
+/* ── Fuel pills ──────────────────────────────────────────────────────────────── */
+.rp-fuel-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.rp-fuel-pill--petrol { background: #dbeafe; color: #1d4ed8; }
+.rp-fuel-pill--diesel { background: #fef3c7; color: #92400e; }
+
+/* ── Status badges ───────────────────────────────────────────────────────────── */
+.rp-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge--approved { background: #dcfce7; color: #15803d; }
+.badge--signed   { background: #dbeafe; color: #1d4ed8; }
+.badge--declined { background: #fff1f2; color: #be123c; }
+.badge--pending  { background: #fef9c3; color: #854d0e; }
+.badge--other    { background: #f3f4f6; color: #6b7280; }
+
+/* ── Table footer ────────────────────────────────────────────────────────────── */
+.rp-tfoot-row {
+  background: #f9fafb;
+  border-top: 2px solid #e5e7eb;
+}
+
+.rp-tfoot-row td {
+  font-size: 13px;
+  border-bottom: none;
+  color: #6b7280;
+}
+
+.rp-tfoot-label { font-weight: 600; color: #374151; }
+.rp-tfoot-total { font-weight: 700; color: #111827; }
+.rp-tfoot-hint  { font-size: 12px; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────────── */
+.rp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 24px;
+  text-align: center;
+}
+
+.rp-empty-icon {
+  font-size: 40px;
+  color: #d1d5db;
+}
+
+.rp-empty-msg {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .rp-filters { gap: 12px; }
+}
+
+@media (max-width: 640px) {
+  .rp-title  { font-size: 20px; }
+  .rp-header { flex-direction: column; align-items: stretch; }
+  .rp-btn--export { width: 100%; justify-content: center; }
+
+  .rp-stat-value    { font-size: 22px; }
+  .rp-stat-value--sm { font-size: 15px; }
+
+  .rp-table-wrap { overflow-x: auto; }
+  .rp-table      { min-width: 700px; table-layout: auto; }
+}

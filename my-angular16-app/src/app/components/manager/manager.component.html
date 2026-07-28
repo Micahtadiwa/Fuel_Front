@@ -1,0 +1,252 @@
+<div class="mg-page">
+
+  <!-- Header -->
+  <div class="mg-header">
+    <div class="mg-header-icon"><i class="fa fa-user-tie"></i></div>
+    <div>
+      <h1 class="mg-title">Manager Dashboard</h1>
+      <p class="mg-subtitle">Welcome, {{ username }} — review and approve pending fuel requests below.</p>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="mg-actions-grid">
+    <button class="mg-action-card mg-action-card--blue" (click)="goTo('vehicles')">
+      <i class="fa fa-car mg-action-icon"></i>
+      <span class="mg-action-label">Vehicles</span>
+    </button>
+    <button *ngIf="role === 'ADMIN_MAKER'" class="mg-action-card mg-action-card--teal" (click)="goTo('assign-vehicle')">
+      <i class="fa fa-exchange mg-action-icon"></i>
+      <span class="mg-action-label">Assign Vehicle</span>
+    </button>
+    <button *ngIf="role === 'ADMIN_MAKER' || role === 'FINANCE'" class="mg-action-card mg-action-card--green" (click)="goTo('authorize')">
+      <i class="fa fa-pencil-square-o mg-action-icon"></i>
+      <span class="mg-action-label">Finance Sign</span>
+    </button>
+    <button class="mg-action-card mg-action-card--purple" (click)="goTo('reports')">
+      <i class="fa fa-bar-chart mg-action-icon"></i>
+      <span class="mg-action-label">Reports</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="mg-state" *ngIf="loading">
+    <i class="fa fa-spinner fa-spin mg-state-icon"></i>
+    Loading fuel records…
+  </div>
+
+  <!-- Error -->
+  <div class="mg-state mg-state--error" *ngIf="error && !loading">
+    <i class="fa fa-exclamation-circle mg-state-icon"></i>
+    {{ error }}
+    <button class="mg-retry" (click)="fetchRecords()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Stats -->
+    <div class="mg-stats">
+      <div class="mg-stat mg-stat--blue">
+        <i class="fa fa-list mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ stats.total }}</div><div class="mg-stat-label">Total Records</div></div>
+      </div>
+      <div class="mg-stat mg-stat--amber">
+        <i class="fa fa-clock-o mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ stats.pending }}</div><div class="mg-stat-label">Pending</div></div>
+      </div>
+      <div class="mg-stat mg-stat--teal">
+        <i class="fa fa-thumbs-up mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ stats.approved }}</div><div class="mg-stat-label">Pending Approval</div></div>
+      </div>
+      <div class="mg-stat mg-stat--red">
+        <i class="fa fa-thumbs-down mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ stats.declined }}</div><div class="mg-stat-label">Declined</div></div>
+      </div>
+      <div class="mg-stat mg-stat--green">
+        <i class="fa fa-check-circle mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ stats.signed }}</div><div class="mg-stat-label">Signed</div></div>
+      </div>
+      <div class="mg-stat mg-stat--gray">
+        <i class="fa fa-tint mg-stat-icon"></i>
+        <div><div class="mg-stat-val">{{ formatNumber(stats.totalL) }}L</div><div class="mg-stat-label">Total Litres</div></div>
+      </div>
+    </div>
+
+    <!-- Sign error -->
+    <div class="mg-alert mg-alert--error" *ngIf="signError">
+      <i class="fa fa-exclamation-circle"></i> {{ signError }}
+    </div>
+
+    <!-- Filters -->
+    <div class="mg-filters">
+      <div class="mg-filter-group">
+        <span class="mg-filter-label">Fuel</span>
+        <div class="mg-toggle">
+          <button class="mg-toggle-btn" [class.mg-toggle-btn--active]="fuelFilter === 'all'"    (click)="fuelFilter = 'all'; resetPage()">All</button>
+          <button class="mg-toggle-btn" [class.mg-toggle-btn--petrol]="fuelFilter === 'petrol'" (click)="fuelFilter = 'petrol'; resetPage()">
+            <span class="mg-dot mg-dot--petrol"></span>Petrol
+          </button>
+          <button class="mg-toggle-btn" [class.mg-toggle-btn--diesel]="fuelFilter === 'diesel'" (click)="fuelFilter = 'diesel'; resetPage()">
+            <span class="mg-dot mg-dot--diesel"></span>Diesel
+          </button>
+        </div>
+      </div>
+
+      <div class="mg-filter-group">
+        <span class="mg-filter-label">Status</span>
+        <select class="mg-select" [(ngModel)]="statusFilter" (ngModelChange)="resetPage()">
+          <option value="all">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="MANAGER_APPROVED">Manager Approved</option>
+          <option value="ATTENDANT_APPROVED">Attendant Approved</option>
+          <option value="DECLINED">Declined</option>
+          <option value="SIGNED">Signed</option>
+        </select>
+      </div>
+
+      <div class="mg-filter-group">
+        <span class="mg-filter-label">From</span>
+        <input class="mg-input" type="date" [(ngModel)]="dateFrom" (ngModelChange)="resetPage()" />
+      </div>
+
+      <div class="mg-filter-group">
+        <span class="mg-filter-label">To</span>
+        <input class="mg-input" type="date" [(ngModel)]="dateTo" (ngModelChange)="resetPage()" />
+      </div>
+
+      <div class="mg-filter-group mg-filter-group--search">
+        <span class="mg-filter-label">Search</span>
+        <div class="mg-search-wrap">
+          <i class="fa fa-search mg-search-icon"></i>
+          <input class="mg-input mg-input--search" type="text" placeholder="Vehicle, driver, dept…" [(ngModel)]="search" (ngModelChange)="resetPage()" />
+        </div>
+      </div>
+
+      <div class="mg-filter-group" *ngIf="hasFilters">
+        <span class="mg-filter-label">&nbsp;</span>
+        <button class="mg-clear-btn" (click)="clearFilters()"><i class="fa fa-times"></i> Clear</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="mg-card">
+      <div class="mg-card-header">
+        <h2 class="mg-card-title">Fuel Records</h2>
+        <p class="mg-card-sub">
+          {{ filteredRecords.length }} record{{ filteredRecords.length !== 1 ? 's' : '' }}
+          <span *ngIf="hasFilters">(filtered from {{ records.length }})</span>
+          <span class="mg-sign-note" *ngIf="stats.approved > 0">· {{ stats.approved }} awaiting your approval</span>
+        </p>
+      </div>
+
+      <div class="mg-table-wrap">
+        <table class="mg-table" *ngIf="filteredRecords.length > 0; else emptyTpl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vehicle</th>
+              <th>Submitted By</th>
+              <th>User and Department</th>
+              <th>Fuel Type</th>
+              <th class="mg-th-num">Litres</th>
+              <th class="mg-th-num">Mileage</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th class="mg-th-action">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of pagedRecords; let i = index"
+                [class.mg-row--approved]="r.status?.toUpperCase() === 'PENDING'"
+                [class.mg-row--declined]="r.status?.toUpperCase() === 'DECLINED'">
+              <td class="mg-td-num mg-td-idx">{{ i + 1 }}</td>
+              <td class="mg-td-plate">{{ r.vehicle || '—' }}</td>
+              <td>{{ r.submittedBy || '—' }}</td>
+              <td>{{ r.driver || '—' }}</td>
+              <td>
+                <span class="mg-fuel-pill" [ngClass]="'mg-fuel-pill--' + (r.fuelType || '').toLowerCase()">
+                  {{ r.fuelType || '—' }}
+                </span>
+              </td>
+              <td class="mg-td-num">{{ formatNumber(r.liters) }}</td>
+              <td class="mg-td-num">{{ r.mileage != null ? formatNumber(r.mileage) : '—' }}</td>
+              <td class="mg-td-date">{{ formatDate(r.fuelDate) }}</td>
+              <td>
+                <span class="mg-badge" [ngClass]="statusClass(r.status)">
+                  {{ r.status || '—' }}
+                </span>
+              </td>
+              <td class="mg-td-notes">{{ r.notes || '—' }}</td>
+              <td class="mg-td-action">
+                <!-- Manager/Admin: approve PENDING records -->
+                <button
+                  *ngIf="(role === 'MANAGER' || role === 'ADMIN_MAKER') && r.status?.toUpperCase() === 'PENDING'"
+                  class="mg-sign-btn"
+                  [class.mg-sign-btn--loading]="isSigning(r.id)"
+                  [disabled]="isSigning(r.id)"
+                  (click)="requestSign(r.id)">
+                  <i class="fa" [ngClass]="isSigning(r.id) ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                  {{ isSigning(r.id) ? 'Approving…' : 'Approve' }}
+                </button>
+                <!-- Manager Approved: awaiting attendant to dispense -->
+                <span class="mg-done-stamp mg-done-stamp--waiting"
+                      *ngIf="r.status?.toUpperCase() === 'MANAGER_APPROVED'">
+                  <i class="fa fa-clock-o"></i> Awaiting Attendant
+                </span>
+                <!-- Attendant Approved: awaiting finance signature -->
+                <span class="mg-done-stamp mg-done-stamp--waiting"
+                      *ngIf="r.status?.toUpperCase() === 'ATTENDANT_APPROVED'">
+                  <i class="fa fa-clock-o"></i> Awaiting Finance
+                </span>
+                <!-- Signed stamp -->
+                <span class="mg-done-stamp mg-done-stamp--signed"
+                      *ngIf="r.status?.toUpperCase() === 'SIGNED'">
+                  <i class="fa fa-lock"></i> Signed
+                </span>
+                <!-- Declined -->
+                <span class="mg-done-stamp mg-done-stamp--declined"
+                      *ngIf="r.status?.toUpperCase() === 'DECLINED'">
+                  <i class="fa fa-times"></i> Declined
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <ng-template #emptyTpl>
+          <div class="mg-empty">
+            <i class="fa fa-inbox mg-empty-icon"></i>
+            <p>No records match the current filters.</p>
+            <button class="mg-clear-btn" (click)="clearFilters()" *ngIf="hasFilters">Clear filters</button>
+          </div>
+        </ng-template>
+        <div class="pg-bar" *ngIf="totalPages > 1">
+          <button class="pg-btn" (click)="prevPage()" [disabled]="page === 1">&#8592; Prev</button>
+          <span class="pg-info">Page {{ page }} of {{ totalPages }}</span>
+          <button class="pg-btn" (click)="nextPage()" [disabled]="page === totalPages">Next &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- Confirm sign modal -->
+  <div class="mg-modal-backdrop" *ngIf="confirmId != null" (click)="cancelSign()">
+    <div class="mg-modal" (click)="$event.stopPropagation()">
+      <div class="mg-modal-icon"><i class="fa fa-pencil-square-o"></i></div>
+      <h2 class="mg-modal-title">Confirm Approval</h2>
+      <p class="mg-modal-body">
+        You are approving this fuel request as <strong>{{ signerName }}</strong>.
+        This will forward the request to the Attendant for fuel dispensing.
+      </p>
+      <div class="mg-modal-actions">
+        <button class="mg-modal-btn mg-modal-btn--cancel" (click)="cancelSign()">Cancel</button>
+        <button class="mg-modal-btn mg-modal-btn--confirm" (click)="confirmSign()">
+          <i class="fa fa-check"></i> Confirm & Approve
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
